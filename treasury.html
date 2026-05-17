@@ -402,7 +402,7 @@ LIVE
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getDatabase, ref, get, update, onValue  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import { getDatabase, ref, get, set, update, onValue  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
   const firebaseConfig = {
    apiKey: "AIzaSyBsKMDF-nX-4tM_Hh0JPozZRuY9x9sFmh4",
@@ -414,8 +414,46 @@ import { getDatabase, ref, get, update, onValue  } from "https://www.gstatic.com
    appId: "1:675532854623:web:4d0ada89aa82b9632852ea"
 };
 
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+/* =========================
+🔥 INITIALISATION AUTOMATIQUE TRÉSORERIE
+========================= */
+
+async function initTreasury(){
+
+const snap = await get(ref(db,"treasury"));
+const t = snap.val() || {};
+
+const fixedTreasury = {
+national:{
+name: t.national?.name || "Commission nationale",
+rate: Number(t.national?.rate ?? 0.01),
+balance: Number(t.national?.balance ?? 0)
+},
+
+international:{
+name: t.international?.name || "Commission internationale",
+rate: Number(t.international?.rate ?? 0.015),
+balance: Number(t.international?.balance ?? 0)
+},
+
+startup:{
+name: t.startup?.name || "Fonds soutien digital",
+rate: Number(t.startup?.rate ?? 0.005),
+balance: Number(t.startup?.balance ?? 0)
+}
+};
+
+await set(ref(db,"treasury"), fixedTreasury);
+
+console.log("✅ Trésorerie corrigée automatiquement :", fixedTreasury);
+
+}
+
+await initTreasury();
 
 /* =========================
 🔥 BACKGROUND DYNAMIQUE
